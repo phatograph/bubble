@@ -94,24 +94,25 @@ const Index = (props) => {
       <a
         className='Index__a'
         onClick={() => {
-          // ___nodes.current = [
-          //   ...___nodes.current,
-          //   {
-          //     x: 400,
-          //     y: 200,
-          //   },
-          // ]
+          ___nodes.current = [
+            ...___nodes.current,
+            {
+              x: 400,
+              y: 200,
+              r: radius,
+            },
+          ]
 
-          ___nodes.current = ___nodes.current.map((x, i) => {
-            if (i == 0) {
-              return {
-                ...x,
-                r: 80,
-              }
-            }
-
-            return x
-          })
+          // ___nodes.current = ___nodes.current.map((x, i) => {
+          //   if (i == 0) {
+          //     return {
+          //       ...x,
+          //       r: 80,
+          //     }
+          //   }
+          //
+          //   return x
+          // })
 
           ___simulation.current.nodes(___nodes.current)
           ___simulation.current.alpha(1).restart()
