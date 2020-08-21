@@ -12,11 +12,11 @@ import Shows from '@components/Shows'
 const MyApp = (props) => {
   const [shows, showsSet] = React.useState([])
 
-  React.useEffect(() => {
-    axios('https://api.tvmaze.com/search/shows?q=batman').then((res) => {
-      showsSet(get(res, 'data'))
-    })
-  }, [])
+  // React.useEffect(() => {
+  //   axios('https://api.tvmaze.com/search/shows?q=batman').then((res) => {
+  //     showsSet(get(res, 'data'))
+  //   })
+  // }, [])
 
   return (
     <ContextShows.Provider value={[shows, showsSet]}>

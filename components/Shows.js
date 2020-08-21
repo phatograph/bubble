@@ -3,9 +3,7 @@ import PropTypes from 'prop-types'
 import {get} from 'lodash'
 import className from 'classnames'
 
-const Shows = ({
-  data,
-}) => {
+const Shows = ({data}) => {
   return (
     <div>
       {data.map((x, i) => (
@@ -15,7 +13,6 @@ const Shows = ({
   )
 }
 
-Shows.propTypes = {
-}
+Shows.propTypes = {}
 
 export default Shows

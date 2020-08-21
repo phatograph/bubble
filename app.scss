@@ -7,61 +7,56 @@ $screen-tablets-xl: 1500px;
 
 @font-face {
   font-family: Gotham-Book;
-  src: url(/fonts/Gotham-Book.otf);
   font-weight: 400;
+  src: url(/fonts/Gotham-Book.otf);
   font-display: block;
 }
 
 @mixin overlay {
   position: fixed;
-  background-color: rgba(#161616, .7);
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   transition: opacity 0.4s;
+  background-color: rgba(#161616, 0.7);
 }
 
 :root {
   --global-space: 20px;
   --app-width: 1070px;
   --header-height: 96px;
-
-  --c-green: #16D488;
-  --c-border: #DDDDDD;
-  --c-black: #2D2D2D;
-  --c-blue: #00B1FF;
-  --c-red: #FF2A2A;
-  --c-orange: #FFA93A;
+  --c-green: #16d488;
+  --c-border: #ddd;
+  --c-black: #2d2d2d;
+  --c-blue: #00b1ff;
+  --c-red: #ff2a2a;
+  --c-orange: #ffa93a;
   --c-gray: gray;
-
-  --ease-in-quad: cubic-bezier(.55, .085, .68, .53);
-  --ease-in-cubic: cubic-bezier(.550, .055, .675, .19);
-  --ease-in-quart: cubic-bezier(.895, .03, .685, .22);
-  --ease-in-quint: cubic-bezier(.755, .05, .855, .06);
-  --ease-in-expo: cubic-bezier(.95, .05, .795, .035);
-  --ease-in-circ: cubic-bezier(.6, .04, .98, .335);
-
-  --ease-out-quad: cubic-bezier(.25, .46, .45, .94);
-  --ease-out-cubic: cubic-bezier(.215, .61, .355, 1);
-  --ease-out-quart: cubic-bezier(.165, .84, .44, 1);
-  --ease-out-quint: cubic-bezier(.23, 1, .32, 1);
-  --ease-out-expo: cubic-bezier(.19, 1, .22, 1);
-  --ease-out-circ: cubic-bezier(.075, .82, .165, 1);
-
-  --ease-in-out-quad: cubic-bezier(.455, .03, .515, .955);
-  --ease-in-out-cubic: cubic-bezier(.645, .045, .355, 1);
-  --ease-in-out-quart: cubic-bezier(.77, 0, .175, 1);
-  --ease-in-out-quint: cubic-bezier(.86, 0, .07, 1);
+  --ease-in-quad: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+  --ease-in-cubic: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+  --ease-in-quart: cubic-bezier(0.895, 0.03, 0.685, 0.22);
+  --ease-in-quint: cubic-bezier(0.755, 0.05, 0.855, 0.06);
+  --ease-in-expo: cubic-bezier(0.95, 0.05, 0.795, 0.035);
+  --ease-in-circ: cubic-bezier(0.6, 0.04, 0.98, 0.335);
+  --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
+  --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-out-circ: cubic-bezier(0.075, 0.82, 0.165, 1);
+  --ease-in-out-quad: cubic-bezier(0.455, 0.03, 0.515, 0.955);
+  --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+  --ease-in-out-quart: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-in-out-quint: cubic-bezier(0.86, 0, 0.07, 1);
   --ease-in-out-expo: cubic-bezier(1, 0, 0, 1);
-  --ease-in-out-circ: cubic-bezier(.785, .135, .15, .86);
+  --ease-in-out-circ: cubic-bezier(0.785, 0.135, 0.15, 0.86);
 
   @media (max-width: $screen-mobiles) {
     --header-height: 67px;
     --global-space: 15px;
   }
 }
-
 
 html {
   box-sizing: border-box;
@@ -77,16 +72,18 @@ html {
 }
 
 body,
-input, select, textarea, button {
-  font-size: 18px;
+input,
+select,
+textarea,
+button {
+  color: #000;
   font-family: Helvetica, Arial, sans-serif;
-  color: #525252;
-
+  font-size: 18px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: antialiased;
+  line-height: 1;
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
-  line-height: 1;
 }
 
 body {
@@ -95,10 +92,10 @@ body {
 
 a,
 button {
-  text-decoration: none;
   color: currentColor;
+  text-decoration: none;
   cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0,0);
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 
   &[href]:hover {
     cursor: pointer;
@@ -106,9 +103,14 @@ button {
   }
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-weight: normal;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-size: inherit;
+  font-weight: normal;
 }
 
 p,
@@ -118,8 +120,8 @@ dd {
 
 [disabled] {
   opacity: 0.4;
-  cursor: default;
   text-decoration: none !important;
+  cursor: default;
   pointer-events: none; // To prevent `onClick` triggering.
 
   &[title] {
@@ -156,7 +158,25 @@ video {
 }
 
 .container {
-  padding: 0 var(--global-space);
   max-width: calc(var(--global-space) * 2 + var(--app-width));
   margin: 0 auto;
+  padding: 0 var(--global-space);
+}
+
+.Index {
+  padding: calc(var(--global-space) * 1);
+
+  &__h1 {
+    font-size: 40px;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  &__wrapper {
+    margin-top: calc(var(--global-space) * 1);
+    border: 1px solid #000;
+  }
+
+  &__svg {
+  }
 }

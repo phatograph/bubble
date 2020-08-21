@@ -2,6 +2,7 @@
   "dependencies": {
     "axios": "^0.19.2",
     "classnames": "^2.2.6",
+    "d3": "^5.16.0",
     "express": "^4.17.1",
     "lodash": "^4.17.15",
     "next": "^9.2.1",
@@ -15,12 +16,15 @@
     "start": "NODE_ENV=production node server.js",
     "lint": "eslint . --ext .js,.tsx --fix && yarn format",
     "format": "yarn format-scss && yarn format-js",
-    "format-scss": "yarn run stylelint css/**/*.scss --fix --formatter verbose",
+    "format-scss": "yarn run stylelint **/*.scss --fix --formatter verbose",
     "format-js": "prettier --write \"**/*.{js,ts,tsx}\""
   },
   "devDependencies": {
     "eslint": "^6.8.0",
     "eslint-plugin-react": "^7.18.3",
-    "prettier": "^1.19.1"
+    "prettier": "^1.19.1",
+    "stylelint": "^13.6.1",
+    "stylelint-config-property-sort-order-smacss": "^6.3.0",
+    "stylelint-config-standard": "^20.0.0"
   }
 }
