@@ -178,5 +178,17 @@ video {
   }
 
   &__svg {
+    text {
+      fill: #fff;
+      font-size: 5px;
+      dominant-baseline: central;
+      text-anchor: middle;
+    }
+  }
+
+  &__a {
+    display: block;
+    margin-top: calc(var(--global-space) * 1);
+    text-align: center;
   }
 }
