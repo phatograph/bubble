@@ -1,0 +1,26 @@
+{
+  "dependencies": {
+    "axios": "^0.19.2",
+    "classnames": "^2.2.6",
+    "express": "^4.17.1",
+    "lodash": "^4.17.15",
+    "next": "^9.2.1",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "sass": "^1.26.10"
+  },
+  "scripts": {
+    "dev": "next -p $PORT",
+    "build": "next build",
+    "start": "NODE_ENV=production node server.js",
+    "lint": "eslint . --ext .js,.tsx --fix && yarn format",
+    "format": "yarn format-scss && yarn format-js",
+    "format-scss": "yarn run stylelint css/**/*.scss --fix --formatter verbose",
+    "format-js": "prettier --write \"**/*.{js,ts,tsx}\""
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-plugin-react": "^7.18.3",
+    "prettier": "^1.19.1"
+  }
+}
