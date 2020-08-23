@@ -19,6 +19,7 @@ const Index = (props) => {
           r: radius,
           fx: 800 / 2,
           fy: 400 / 2,
+          comments: [{}, {}],
         }
       }
 
@@ -44,23 +45,56 @@ const Index = (props) => {
         })
       )
       .on('tick', () => {
-        const u = $$mainG.selectAll('g').data(___nodes.current)
+        const $g = $$mainG
+          .selectAll('g')
+          .data(___nodes.current)
+          .join('g')
 
-        u.enter()
-          .append('g')
-          .merge(u)
-          .html((d) => {
-            return ReactDOMServer.renderToStaticMarkup(
-              <React.Fragment>
-                <circle cx={d.x} cy={d.y} r={d.r} />
-                <text x={d.x} y={d.y}>
-                  {d.index}
-                </text>
-              </React.Fragment>
-            )
+        $g.selectAll('circle')
+          .data((d) => {
+            return [
+              {
+                x: d.x,
+                y: d.y,
+              },
+            ]
           })
+          .join('circle')
+          .attr('r', 10)
+          .attr('cx', (d) => d.x)
+          .attr('cy', (d) => d.y)
 
-        u.exit().remove()
+        $g.selectAll('text.label')
+          .data((d, i) => {
+            return [
+              {
+                x: d.x,
+                y: d.y,
+                i,
+              },
+            ]
+          })
+          .join('text')
+          .attr('x', (d) => d.x)
+          .attr('y', (d) => d.y)
+          .text((d) => d.i)
+          .classed('label', true)
+
+        $g.selectAll('text.comments')
+          .data((d, i) => {
+            return (get(d, 'comments') || []).map((x, i) => {
+              return {
+                x: d.x,
+                y: d.y,
+                i,
+              }
+            })
+          })
+          .join('text')
+          .attr('x', (d) => d.x)
+          .attr('y', (d) => d.y + 10 * (d.i + 1))
+          .text('x')
+          .classed('comments', true)
       })
 
     $$svg.call(
@@ -87,7 +121,7 @@ const Index = (props) => {
 
       <div className='Index__wrapper'>
         <svg viewBox='0 0 800 400' ref={$svg} className='Index__svg'>
-          <g ref={$mainG} />
+          <g ref={$mainG} className='Index__svg__main-g' />
         </svg>
       </div>
 
@@ -100,6 +134,7 @@ const Index = (props) => {
               x: 400,
               y: 200,
               r: radius,
+              comments: [{}],
             },
           ]
 
