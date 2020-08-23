@@ -183,6 +183,10 @@ video {
       font-size: 8px;
       dominant-baseline: central;
       text-anchor: middle;
+
+      &.label {
+        cursor: pointer;
+      }
     }
   }
 
