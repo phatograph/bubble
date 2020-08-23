@@ -19,7 +19,14 @@ const Index = (props) => {
           r: radius,
           fx: 800 / 2,
           fy: 400 / 2,
-          comments: [{}, {}],
+          comments: [
+            {
+              label: 'a',
+            },
+            {
+              label: 'b',
+            },
+          ],
         }
       }
 
@@ -46,9 +53,10 @@ const Index = (props) => {
       )
       .on('tick', () => {
         const $g = $$mainG
-          .selectAll('g')
+          .selectAll('g.post')
           .data(___nodes.current)
           .join('g')
+          .classed('post', true)
 
         $g.selectAll('circle')
           .data((d) => {
@@ -75,26 +83,38 @@ const Index = (props) => {
             ]
           })
           .join('text')
+          .classed('label', true)
           .attr('x', (d) => d.x)
           .attr('y', (d) => d.y)
           .text((d) => d.i)
-          .classed('label', true)
 
-        $g.selectAll('text.comments')
+        $g.selectAll('g.comments')
           .data((d, i) => {
-            return (get(d, 'comments') || []).map((x, i) => {
-              return {
-                x: d.x,
-                y: d.y,
-                i,
-              }
-            })
+            if (!get(d, 'comments')) {
+              return []
+            }
+
+            return [
+              {
+                comments: (get(d, 'comments') || []).map((x, i) => {
+                  return {
+                    x: d.x,
+                    y: d.y,
+                    i,
+                    label: get(x, 'label'),
+                  }
+                }),
+              },
+            ]
           })
+          .join('g')
+          .classed('comments', true)
+          .selectAll('text')
+          .data((d) => get(d, 'comments') || [])
           .join('text')
           .attr('x', (d) => d.x)
           .attr('y', (d) => d.y + 10 * (d.i + 1))
-          .text('x')
-          .classed('comments', true)
+          .text((d) => d.label)
       })
 
     $$svg.call(
@@ -134,7 +154,11 @@ const Index = (props) => {
               x: 400,
               y: 200,
               r: radius,
-              comments: [{}],
+              comments: [
+                {
+                  label: 'a',
+                },
+              ],
             },
           ]
 
