@@ -68,7 +68,7 @@ const Index = (props) => {
             ]
           })
           .join('circle')
-          .attr('r', 10)
+          .attr('r', radius)
           .attr('cx', (d) => d.x)
           .attr('cy', (d) => d.y)
 
@@ -87,6 +87,26 @@ const Index = (props) => {
           .attr('x', (d) => d.x)
           .attr('y', (d) => d.y)
           .text((d) => d.i)
+          .on('click', (d) => {
+            ___nodes.current = ___nodes.current.map((x) => {
+              if (x.index == d.i) {
+                return {
+                  ...x,
+                  comments: [
+                    ...(get(x, 'comments') || []),
+                    {
+                      label: 'x',
+                    },
+                  ],
+                }
+              }
+
+              return x
+            })
+
+            ___simulation.current.nodes(___nodes.current)
+            ___simulation.current.alpha(1).restart()
+          })
 
         $g.selectAll('g.comments')
           .data((d, i) => {
@@ -112,8 +132,8 @@ const Index = (props) => {
           .selectAll('text')
           .data((d) => get(d, 'comments') || [])
           .join('text')
-          .attr('x', (d) => d.x)
-          .attr('y', (d) => d.y + 10 * (d.i + 1))
+          .attr('x', (d) => d.x + Math.sin((d.i * Math.PI) / 6) * radius * 1.25)
+          .attr('y', (d) => d.y - Math.cos((d.i * Math.PI) / 6) * radius * 1.25)
           .text((d) => d.label)
       })
 
