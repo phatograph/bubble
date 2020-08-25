@@ -178,15 +178,15 @@ video {
   }
 
   &__svg {
+    circle {
+      cursor: pointer;
+    }
+
     text {
       fill: red;
       font-size: 8px;
       dominant-baseline: central;
       text-anchor: middle;
-
-      &.label {
-        cursor: pointer;
-      }
     }
   }
 

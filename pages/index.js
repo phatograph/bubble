@@ -76,7 +76,7 @@ const Index = (props) => {
       .force(
         'collision',
         d3.forceCollide().radius((d) => {
-          return radius + 10
+          return radius + 20
         })
       )
       .on('tick', () => {
@@ -124,7 +124,7 @@ const Index = (props) => {
               .call((enter) => {
                 return enter
                   .transition()
-                  .duration(3000)
+                  .duration(1000)
                   .attr('r', radius)
               })
           },
@@ -133,6 +133,25 @@ const Index = (props) => {
           },
           (exit) => exit.remove()
         )
+        .on('click', (d) => {
+          ___nodes.current = ___nodes.current.map((x) => {
+            if (x.index == d.index) {
+              return {
+                ...x,
+                comments: [
+                  ...(get(x, 'comments') || []),
+                  {
+                    label: 'x',
+                  },
+                ],
+              }
+            }
+
+            return x
+          })
+
+          ___animate.current()
+        })
 
       $$gsComments.current = $$gs.current
         .selectAll('text')
@@ -143,13 +162,22 @@ const Index = (props) => {
             return {
               ...x,
               i,
-              node: currentNode,
+              node: currentNode, // This has to be kept in as a separated object. An attempt to destructure it would fail. Seems to be used by `.forceSimulation`.
             }
           })
         })
         .join(
           (enter) => {
-            return enter.append('text').text((d) => get(d, 'label'))
+            return enter
+              .append('text')
+              .text((d) => get(d, 'label'))
+              .attr('fill-opacity', 0)
+              .call((enter) => {
+                return enter
+                  .transition()
+                  .duration(400)
+                  .attr('fill-opacity', 1)
+              })
           },
           (update) => {
             return update
