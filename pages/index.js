@@ -10,26 +10,13 @@ const Index = (props) => {
   const $svg = React.useRef()
   const $mainG = React.useRef()
 
-  const ___nodes = React.useRef(
-    Array.from(Array(7)).map((x, i) => {
-      if (i == 0) {
-        return {
-          fx: 800 / 2,
-          fy: 400 / 2,
-          comments: [
-            {
-              label: 'a',
-            },
-            {
-              label: 'b',
-            },
-          ],
-        }
-      }
-
-      return {}
-    })
-  )
+  const ___nodes = React.useRef([
+    {
+      fx: 800 / 2,
+      fy: 400 / 2,
+      type: 'center',
+    },
+  ])
 
   const ___simulation = React.useRef()
   const ___animate = React.useRef()
@@ -37,7 +24,7 @@ const Index = (props) => {
   React.useEffect(() => {
     const $$svg = d3.select($svg.current)
     const $$mainG = d3.select($mainG.current)
-    const radius = 20
+    const radius = 30
 
     let $$gs
     let $$gsCircle
@@ -70,10 +57,9 @@ const Index = (props) => {
 
     ___simulation.current = d3
       .forceSimulation(___nodes.current)
-      .force('charge', d3.forceManyBody().strength(5))
-      .force('center', d3.forceCenter(800 / 2, 400 / 2))
+      .force('forceManyBody', d3.forceManyBody().strength(5))
       .force(
-        'collision',
+        'forceCollide',
         d3.forceCollide().radius((d) => {
           return radius + 20
         })
@@ -93,7 +79,6 @@ const Index = (props) => {
               get(d, 'node.y') - Math.cos((d.i * Math.PI) / 6) * radius * 1.25
           )
       })
-      .stop()
 
     ___animate.current = () => {
       ___simulation.current.nodes(___nodes.current)
@@ -117,7 +102,8 @@ const Index = (props) => {
           (enter) => {
             return enter
               .append('circle')
-              .attr('r', 5)
+              .attr('r', 0)
+              .attr('fill', (d) => get(d, 'type') == 'center' ? '#EE84A8' : '#D6D6D6')
               .call((enter) => {
                 return enter
                   .transition()
