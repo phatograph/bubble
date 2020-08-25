@@ -9,8 +9,10 @@ import * as d3 from 'd3'
 const Index = (props) => {
   const $svg = React.useRef()
   const $mainG = React.useRef()
-  const $$gs = React.useRef()
+
   const $$circles = React.useRef()
+  const $$gs = React.useRef()
+  const $$gsCircles = React.useRef()
 
   const radius = 20
 
@@ -42,6 +44,8 @@ const Index = (props) => {
     const $$svg = d3.select($svg.current)
     const $$mainG = d3.select($mainG.current)
 
+    // START zoom
+
     $$svg.call(
       d3
         .zoom()
@@ -61,7 +65,11 @@ const Index = (props) => {
 
     $$svg.on('dblclick.zoom', null)
 
-    $$circles.current = $$mainG.selectAll('circle')
+    // END zoom
+
+    $$circles.current = $$mainG.selectAll('circle.test')
+    $$gs.current = $$mainG.selectAll('g.post')
+    $$gsCircles.current = $$gs.current.selectAll('circle')
 
     ___simulation.current = d3
       .forceSimulation(___nodes.current)
@@ -83,6 +91,7 @@ const Index = (props) => {
         (enter) => {
           return enter
             .append('circle')
+            .classed('test', true)
             .attr('r', 5)
             .call((enter) => {
               return enter
@@ -90,6 +99,26 @@ const Index = (props) => {
                 .duration(3000)
                 .attr('r', radius)
             })
+        },
+        (update) => update,
+        (exit) => exit.remove()
+      )
+
+      $$gs.current = $$gs.current.data(___nodes.current).join(
+        (enter) => {
+          return enter
+            .append('g')
+        },
+        (update) => update,
+        (exit) => exit.remove()
+      )
+
+      $$gsCircles.current = $$gsCircles.current.data((d) => {
+        return [{}]
+      }).join(
+        (enter) => {
+          return enter
+            .append('circle')
         },
         (update) => update,
         (exit) => exit.remove()
