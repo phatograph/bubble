@@ -10,7 +10,6 @@ const Index = (props) => {
   const $svg = React.useRef()
   const $mainG = React.useRef()
 
-  const $$circles = React.useRef()
   const $$gs = React.useRef()
   const $$gsCircles = React.useRef()
 
@@ -67,9 +66,7 @@ const Index = (props) => {
 
     // END zoom
 
-    $$circles.current = $$mainG.selectAll('circle.test')
     $$gs.current = $$mainG.selectAll('g.post')
-    $$gsCircles.current = $$gs.current.selectAll('circle')
 
     ___simulation.current = d3
       .forceSimulation(___nodes.current)
@@ -82,49 +79,48 @@ const Index = (props) => {
         })
       )
       .on('tick', () => {
-        $$circles.current.attr('cx', (d) => d.x).attr('cy', (d) => d.y)
+        $$gsCircles.current
+          .attr('cx', (d) => get(d, 'x'))
+          .attr('cy', (d) => get(d, 'y'))
       })
       .stop()
 
     ___animate.current = () => {
-      $$circles.current = $$circles.current.data(___nodes.current).join(
-        (enter) => {
-          return enter
-            .append('circle')
-            .classed('test', true)
-            .attr('r', 5)
-            .call((enter) => {
-              return enter
-                .transition()
-                .duration(3000)
-                .attr('r', radius)
-            })
-        },
-        (update) => update,
-        (exit) => exit.remove()
-      )
+      ___simulation.current.nodes(___nodes.current)
 
       $$gs.current = $$gs.current.data(___nodes.current).join(
         (enter) => {
-          return enter
-            .append('g')
+          return enter.append('g').classed('post', true)
         },
-        (update) => update,
+        (update) => {
+          return update
+        },
         (exit) => exit.remove()
       )
 
-      $$gsCircles.current = $$gsCircles.current.data((d) => {
-        return [{}]
-      }).join(
-        (enter) => {
-          return enter
-            .append('circle')
-        },
-        (update) => update,
-        (exit) => exit.remove()
-      )
+      $$gsCircles.current = $$gs.current
+        .selectAll('circle')
+        .data((d) => {
+          return [___nodes.current[d.index]]
+        })
+        .join(
+          (enter) => {
+            return enter
+              .append('circle')
+              .attr('r', 5)
+              .call((enter) => {
+                return enter
+                  .transition()
+                  .duration(3000)
+                  .attr('r', radius)
+              })
+          },
+          (update) => {
+            return update
+          },
+          (exit) => exit.remove()
+        )
 
-      ___simulation.current.nodes(___nodes.current)
       ___simulation.current.alpha(1).restart()
     }
 
