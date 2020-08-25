@@ -11,7 +11,8 @@ const Index = (props) => {
   const $mainG = React.useRef()
 
   const $$gs = React.useRef()
-  const $$gsCircles = React.useRef()
+  const $$gsCircle = React.useRef()
+  const $$gsComments = React.useRef()
 
   const radius = 20
 
@@ -79,9 +80,21 @@ const Index = (props) => {
         })
       )
       .on('tick', () => {
-        $$gsCircles.current
+        $$gsCircle.current
           .attr('cx', (d) => get(d, 'x'))
           .attr('cy', (d) => get(d, 'y'))
+
+        $$gsComments.current
+          .attr(
+            'x',
+            (d) =>
+              get(d, 'node.x') + Math.sin((d.i * Math.PI) / 6) * radius * 1.25
+          )
+          .attr(
+            'y',
+            (d) =>
+              get(d, 'node.y') - Math.cos((d.i * Math.PI) / 6) * radius * 1.25
+          )
       })
       .stop()
 
@@ -98,7 +111,7 @@ const Index = (props) => {
         (exit) => exit.remove()
       )
 
-      $$gsCircles.current = $$gs.current
+      $$gsCircle.current = $$gs.current
         .selectAll('circle')
         .data((d) => {
           return [___nodes.current[d.index]]
@@ -114,6 +127,29 @@ const Index = (props) => {
                   .duration(3000)
                   .attr('r', radius)
               })
+          },
+          (update) => {
+            return update
+          },
+          (exit) => exit.remove()
+        )
+
+      $$gsComments.current = $$gs.current
+        .selectAll('text')
+        .data((d) => {
+          const currentNode = get(___nodes, `current[${d.index}]`)
+
+          return (get(currentNode, 'comments') || []).map((x, i) => {
+            return {
+              ...x,
+              i,
+              node: currentNode,
+            }
+          })
+        })
+        .join(
+          (enter) => {
+            return enter.append('text').text((d) => get(d, 'label'))
           },
           (update) => {
             return update
