@@ -10,12 +10,6 @@ const Index = (props) => {
   const $svg = React.useRef()
   const $mainG = React.useRef()
 
-  const $$gs = React.useRef()
-  const $$gsCircle = React.useRef()
-  const $$gsComments = React.useRef()
-
-  const radius = 20
-
   const ___nodes = React.useRef(
     Array.from(Array(7)).map((x, i) => {
       if (i == 0) {
@@ -43,6 +37,11 @@ const Index = (props) => {
   React.useEffect(() => {
     const $$svg = d3.select($svg.current)
     const $$mainG = d3.select($mainG.current)
+    const radius = 20
+
+    let $$gs
+    let $$gsCircle
+    let $$gsComments
 
     // START zoom
 
@@ -67,7 +66,7 @@ const Index = (props) => {
 
     // END zoom
 
-    $$gs.current = $$mainG.selectAll('g.post')
+    $$gs = $$mainG.selectAll('g.post')
 
     ___simulation.current = d3
       .forceSimulation(___nodes.current)
@@ -80,11 +79,9 @@ const Index = (props) => {
         })
       )
       .on('tick', () => {
-        $$gsCircle.current
-          .attr('cx', (d) => get(d, 'x'))
-          .attr('cy', (d) => get(d, 'y'))
+        $$gsCircle.attr('cx', (d) => get(d, 'x')).attr('cy', (d) => get(d, 'y'))
 
-        $$gsComments.current
+        $$gsComments
           .attr(
             'x',
             (d) =>
@@ -101,7 +98,7 @@ const Index = (props) => {
     ___animate.current = () => {
       ___simulation.current.nodes(___nodes.current)
 
-      $$gs.current = $$gs.current.data(___nodes.current).join(
+      $$gs = $$gs.data(___nodes.current).join(
         (enter) => {
           return enter.append('g').classed('post', true)
         },
@@ -111,7 +108,7 @@ const Index = (props) => {
         (exit) => exit.remove()
       )
 
-      $$gsCircle.current = $$gs.current
+      $$gsCircle = $$gs
         .selectAll('circle')
         .data((d) => {
           return [___nodes.current[d.index]]
@@ -153,7 +150,7 @@ const Index = (props) => {
           ___animate.current()
         })
 
-      $$gsComments.current = $$gs.current
+      $$gsComments = $$gs
         .selectAll('text')
         .data((d) => {
           const currentNode = get(___nodes, `current[${d.index}]`)
@@ -209,7 +206,6 @@ const Index = (props) => {
             {
               x: 400,
               y: 200,
-              r: radius,
               comments: [
                 {
                   label: 'a',
