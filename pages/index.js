@@ -28,6 +28,11 @@ const Index = (props) => {
 
     let $$gs
     let $$gsCircle
+    let $$gsDefs
+    let $$gsDefsPattern
+    let $$gsDefsPatternImage
+    let $$gsCover
+    let $$gsTitle
     let $$gsComments
 
     // START zoom
@@ -66,6 +71,8 @@ const Index = (props) => {
       )
       .on('tick', () => {
         $$gsCircle.attr('cx', (d) => get(d, 'x')).attr('cy', (d) => get(d, 'y'))
+        $$gsCover.attr('cx', (d) => get(d, 'x')).attr('cy', (d) => get(d, 'y'))
+        $$gsTitle.attr('x', (d) => get(d, 'x')).attr('y', (d) => get(d, 'y'))
 
         $$gsComments
           .attr(
@@ -94,7 +101,7 @@ const Index = (props) => {
       )
 
       $$gsCircle = $$gs
-        .selectAll('circle')
+        .selectAll('circle.bg')
         .data((d) => {
           return [___nodes.current[d.index]]
         })
@@ -102,8 +109,11 @@ const Index = (props) => {
           (enter) => {
             return enter
               .append('circle')
+              .classed('bg', true)
               .attr('r', 0)
-              .attr('fill', (d) => get(d, 'type') == 'center' ? '#EE84A8' : '#D6D6D6')
+              .attr('fill', (d) =>
+                get(d, 'type') == 'center' ? '#EE84A8' : '#D6D6D6'
+              )
               .call((enter) => {
                 return enter
                   .transition()
@@ -136,8 +146,130 @@ const Index = (props) => {
           ___animate.current()
         })
 
+      $$gsDefs = $$gs
+        .selectAll('defs')
+        .data((d) => {
+          if (get(d, 'type') == 'center') {
+            return [{}]
+          }
+
+          return []
+        })
+        .join(
+          (enter) => {
+            return enter.append('defs')
+          },
+          (update) => {
+            return update
+          },
+          (exit) => exit.remove()
+        )
+
+      $$gsDefsPattern = $$gsDefs
+        .selectAll('pattern')
+        .data((d) => {
+          return [{}]
+        })
+        .join(
+          (enter) => {
+            return enter
+              .append('pattern')
+              .attr('id', 'img0')
+              .attr('width', '100%')
+              .attr('height', '100%')
+              .attr('patternUnits', 'objectBoundingBox')
+              .attr('viewBox', '0 0 1 1')
+              .attr('preserveAspectRatio', 'xMidYMid slice')
+          },
+          (update) => {
+            return update
+          },
+          (exit) => exit.remove()
+        )
+
+      $$gsDefsPatternImage = $$gsDefsPattern
+        .selectAll('image')
+        .data((d) => {
+          return [{}]
+        })
+        .join(
+          (enter) => {
+            return enter
+              .append('image')
+              .attr('width', '1')
+              .attr('height', '1')
+              .attr('preserveAspectRatio', 'xMidYMid slice')
+              .attr('xlink:href', 'https://picsum.photos/id/237/200/300')
+          },
+          (update) => {
+            return update
+          },
+          (exit) => exit.remove()
+        )
+
+      $$gsCover = $$gs
+        .selectAll('circle.cover')
+        .data((d) => {
+          if (get(d, 'type') == 'center') {
+            return [___nodes.current[d.index]]
+          }
+
+          return []
+        })
+        .join(
+          (enter) => {
+            return enter
+              .append('circle')
+              .classed('cover', true)
+              .attr('r', radius - 2)
+              .attr('fill', `url(#img0)`)
+              .attr('fill-opacity', 0)
+              .call((enter) => {
+                return enter
+                  .transition()
+                  .delay(1000)
+                  .duration(400)
+                  .attr('fill-opacity', 1)
+              })
+          },
+          (update) => {
+            return update
+          },
+          (exit) => exit.remove()
+        )
+
+      $$gsTitle = $$gs
+        .selectAll('text.title')
+        .data((d) => {
+          if (get(d, 'type') == 'center') {
+            return [___nodes.current[d.index]]
+          }
+
+          return []
+        })
+        .join(
+          (enter) => {
+            return enter
+              .append('text')
+              .classed('title', true)
+              .text('阪神 0 - 0 巨人')
+              .attr('fill-opacity', 0)
+              .call((enter) => {
+                return enter
+                  .transition()
+                  .delay(1000)
+                  .duration(400)
+                  .attr('fill-opacity', 1)
+              })
+          },
+          (update) => {
+            return update
+          },
+          (exit) => exit.remove()
+        )
+
       $$gsComments = $$gs
-        .selectAll('text')
+        .selectAll('text.comment')
         .data((d) => {
           const currentNode = get(___nodes, `current[${d.index}]`)
 
@@ -153,6 +285,7 @@ const Index = (props) => {
           (enter) => {
             return enter
               .append('text')
+              .classed('comment', true)
               .text((d) => get(d, 'label'))
               .attr('fill-opacity', 0)
               .call((enter) => {
