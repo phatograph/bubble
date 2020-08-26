@@ -189,8 +189,6 @@ video {
 
 .Bubbles {
   &__post {
-    cursor: pointer;
-
     &__bg {
       fill: #d6d6d6;
 
@@ -205,12 +203,22 @@ video {
       font-weight: bold;
       dominant-baseline: central;
       text-anchor: middle;
-      pointer-events: none;
+      cursor: pointer;
 
       &--center {
         fill: #fff;
         font-size: 7px;
+        cursor: default;
       }
+    }
+
+    &__zoom {
+      fill: #000;
+      font-size: 5px;
+      font-weight: bold;
+      dominant-baseline: central;
+      text-anchor: middle;
+      cursor: pointer;
     }
 
     &__comment {

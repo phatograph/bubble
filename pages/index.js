@@ -47,26 +47,26 @@ const Index = (props) => {
     let $$gsCover
     let $$gsProfileImage
     let $$gsTitle
+    let $$gsZoom
 
     // START zoom
 
-    $$svg.call(
-      d3
-        .zoom()
-        .extent([
-          [0, 0],
-          [800, 400],
-        ])
-        .scaleExtent([1 / (2 * 1), 2 * 4])
-        .translateExtent([
-          [-100, -100],
-          [800 + 100, 400 + 100],
-        ])
-        .on('zoom', () => {
-          $$mainG.attr('transform', d3.event.transform)
-        })
-    )
+    const zoom = d3
+      .zoom()
+      .extent([
+        [0, 0],
+        [800, 400],
+      ])
+      .scaleExtent([1 / (2 * 1), 2 * 4])
+      .translateExtent([
+        [-100, -100],
+        [800 + 100, 400 + 100],
+      ])
+      .on('zoom', () => {
+        $$mainG.attr('transform', d3.event.transform)
+      })
 
+    $$svg.call(zoom)
     $$svg.on('dblclick.zoom', null)
 
     // END zoom
@@ -78,7 +78,7 @@ const Index = (props) => {
 
     ___simulation.current = d3
       .forceSimulation(___nodes.current)
-      .force('forceManyBody', d3.forceManyBody().strength(5))
+      .force('forceManyBody', d3.forceManyBody().strength(10))
       .force(
         'forceCollide',
         d3.forceCollide().radius((d) => {
@@ -89,7 +89,11 @@ const Index = (props) => {
         $$gsBg.attr('cx', (d) => get(d, 'x')).attr('cy', (d) => get(d, 'y'))
         $$gsCover.attr('cx', (d) => get(d, 'x')).attr('cy', (d) => get(d, 'y'))
 
-        $$gsTitle.attr('x', (d) => get(d, 'x')).attr('y', (d) => get(d, 'y'))
+        $$gsTitle
+          .attr('x', (d) => get(d, 'x'))
+          .attr('y', (d) => get(d, 'y') - 3)
+
+        $$gsZoom.attr('x', (d) => get(d, 'x')).attr('y', (d) => get(d, 'y') + 6)
 
         $$gsComments
           .attr(
@@ -141,7 +145,7 @@ const Index = (props) => {
           )
       })
 
-    ___animate.current = () => {
+    ___animate.current = ({noRestartForceSimulation = false} = {}) => {
       ___simulation.current.nodes(___nodes.current)
 
       $$gs = $$gs
@@ -433,26 +437,6 @@ const Index = (props) => {
             return exit.remove()
           }
         )
-        .on('click', (d) => {
-          ___nodes.current = ___nodes.current.map((x) => {
-            if (x.id == d.id) {
-              return {
-                ...x,
-                comments: [
-                  ...(get(x, 'comments') || []),
-                  {
-                    id: +new Date(),
-                    cover: `https://picsum.photos/id/${rand()}/200/300`,
-                  },
-                ],
-              }
-            }
-
-            return x
-          })
-
-          ___animate.current()
-        })
 
       $$gsProfileImage = $$gs
         .selectAll('.Bubbles__post__profile-image')
@@ -562,8 +546,78 @@ const Index = (props) => {
           },
           (exit) => exit.remove()
         )
+        .on('click', (d) => {
+          ___nodes.current = ___nodes.current.map((x) => {
+            if (x.id == d.id) {
+              return {
+                ...x,
+                comments: [
+                  ...(get(x, 'comments') || []),
+                  {
+                    id: +new Date(),
+                    cover: `https://picsum.photos/id/${rand()}/200/300`,
+                  },
+                ],
+              }
+            }
 
-      ___simulation.current.alpha(1).restart()
+            return x
+          })
+
+          ___animate.current({noRestartForceSimulation: true})
+        })
+
+      $$gsZoom = $$gs
+        .selectAll('.Bubbles__post__zoom')
+        .data(
+          (d) => {
+            if (get(d, 'type') != 'center') {
+              return [___nodes.current[d.index]]
+            }
+
+            return []
+          },
+          (d) => get(d, 'id')
+        )
+        .join(
+          (enter) => {
+            return enter
+              .append('text')
+              .classed('Bubbles__post__zoom', true)
+              .text('Click to zoom')
+              .attr('fill-opacity', 0)
+              .call((enter) => {
+                return enter
+                  .transition()
+                  .delay(1000)
+                  .duration(400)
+                  .attr('fill-opacity', 1)
+              })
+          },
+          (update) => {
+            return update
+          },
+          (exit) => exit.remove()
+        )
+        .on('click', (d) => {
+          d3.event.stopPropagation()
+
+          $$svg
+            .transition()
+            .duration(750)
+            .call(
+              zoom.transform,
+              d3.zoomIdentity
+                .translate(800 / 2, 400 / 2)
+                .scale(2 * 3)
+                .translate(get(d, 'x') * -1, get(d, 'y') * -1),
+              d3.mouse($$svg.node())
+            )
+        })
+
+      if (!noRestartForceSimulation) {
+        ___simulation.current.alpha(1).restart()
+      }
     }
 
     ___animate.current()
