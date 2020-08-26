@@ -12,6 +12,7 @@ const Index = (props) => {
 
   const ___nodes = React.useRef([
     {
+      id: 2,
       fx: 800 / 2,
       fy: 400 / 2,
       type: 'center',
@@ -19,16 +20,19 @@ const Index = (props) => {
       cover: 'https://picsum.photos/id/237/200/300',
     },
     {
+      id: 3,
       x: 800 / 2,
       y: 400 / 2,
       title: 'Panes of glass',
       cover: 'https://picsum.photos/id/236/200/300',
       comments: [
         {
-          cover: 'https://picsum.photos/id/238/200/300',
+          id: 30,
+          cover: `https://picsum.photos/id/${3 * 10}/200/300`,
         },
         {
-          cover: 'https://picsum.photos/id/239/200/300',
+          id: 31,
+          cover: `https://picsum.photos/id/${3 * 10 + 1}/200/300`,
         },
       ],
     },
@@ -176,7 +180,7 @@ const Index = (props) => {
             _images = [
               ..._images,
               {
-                id: `${d.index}-cover`,
+                id: `${get(d, 'id')}-cover`,
                 href: get(d, 'cover'),
               },
             ]
@@ -187,7 +191,7 @@ const Index = (props) => {
               ..._images,
               ...get(d, 'comments').map((x, i) => {
                 return {
-                  id: `${d.index}-comment-${i}`,
+                  id: `${get(d, 'id')}-comment-${get(x, 'id')}`,
                   href: get(x, 'cover'),
                 }
               }),
@@ -333,7 +337,7 @@ const Index = (props) => {
               .attr('r', 4)
               .attr(
                 'fill',
-                (d, i) => `url(#${get(d, 'node.index')}-comment-${i})`
+                (d, i) => `url(#${get(d, 'node.id')}-comment-${get(d, 'id')})`
               )
               .attr('fill-opacity', 0)
               .call((enter) => {
@@ -382,13 +386,16 @@ const Index = (props) => {
         )
         .on('click', (d) => {
           ___nodes.current = ___nodes.current.map((x) => {
-            if (x.index == d.index) {
+            if (x.id == d.id) {
+              const _id = get(x, 'comments.length') + get(x, 'id') * 10
+
               return {
                 ...x,
                 comments: [
                   ...(get(x, 'comments') || []),
                   {
-                    label: 'x',
+                    id: _id,
+                    cover: `https://picsum.photos/id/${_id}/200/300`,
                   },
                 ],
               }
@@ -415,7 +422,7 @@ const Index = (props) => {
               .append('circle')
               .classed('Bubbles__post__cover', true)
               .attr('r', radius - 2)
-              .attr('fill', (d) => `url(#${get(d, 'index')}-cover)`)
+              .attr('fill', (d) => `url(#${get(d, 'id')}-cover)`)
               .attr('fill-opacity', 0)
               .call((enter) => {
                 return enter
@@ -489,6 +496,7 @@ const Index = (props) => {
           ___nodes.current = [
             ...___nodes.current,
             {
+              id: get(___nodes, 'current.length') + 3,
               x: 400,
               y: 200,
               title: 'Clatter plates.',
