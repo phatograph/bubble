@@ -177,23 +177,46 @@ video {
     border: 1px solid #000;
   }
 
-  &__svg {
-    circle {
-      cursor: pointer;
-    }
-
-    .title {
-font-weight: bold;
-font-size: 7px;
-fill: #FFFFFF;
-      dominant-baseline: central;
-      text-anchor: middle;
-    }
-  }
-
   &__a {
     display: block;
     margin-top: calc(var(--global-space) * 1);
     text-align: center;
+  }
+}
+
+.Bubbles {
+  circle {
+    cursor: pointer;
+  }
+
+  &__post {
+    &__bg {
+      fill: #d6d6d6;
+
+      &--center {
+        fill: #ee84a8;
+      }
+    }
+
+    &__title {
+      fill: #000;
+      font-size: 7px;
+      font-weight: bold;
+      dominant-baseline: central;
+      text-anchor: middle;
+      pointer-events: none;
+
+      &--center {
+        fill: #fff;
+      }
+    }
+
+    &__comment {
+      fill: #d6d6d6;
+    }
+
+    &__comment-line {
+      stroke: #d6d6d6;
+    }
   }
 }
