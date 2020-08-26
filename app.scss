@@ -185,11 +185,9 @@ video {
 }
 
 .Bubbles {
-  circle {
-    cursor: pointer;
-  }
-
   &__post {
+    cursor: pointer;
+
     &__bg {
       fill: #d6d6d6;
 

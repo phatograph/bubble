@@ -16,12 +16,21 @@ const Index = (props) => {
       fy: 400 / 2,
       type: 'center',
       title: '阪神 0 - 0 巨人',
+      cover: 'https://picsum.photos/id/237/200/300',
     },
     {
       x: 800 / 2,
       y: 400 / 2,
       title: 'Panes of glass',
-      comments: [{}],
+      cover: 'https://picsum.photos/id/236/200/300',
+      comments: [
+        {
+          cover: 'https://picsum.photos/id/238/200/300',
+        },
+        {
+          cover: 'https://picsum.photos/id/239/200/300',
+        },
+      ],
     },
   ])
 
@@ -34,15 +43,21 @@ const Index = (props) => {
     const radius = 30
 
     let $$gs
+
     let $$gsBg
+
     let $$gsDefs
     let $$gsDefsPattern
     let $$gsDefsPatternImage
     let $$gsCover
+
     let $$gsTitle
+
     let $$gsCommentsWrapper
+    let $$gsCommentsDefs
     let $$gsComments
     let $$gsCommentsLine
+    let $$gsCommentsCover
 
     // START zoom
 
@@ -81,6 +96,7 @@ const Index = (props) => {
       .on('tick', () => {
         $$gsBg.attr('cx', (d) => get(d, 'x')).attr('cy', (d) => get(d, 'y'))
         $$gsCover.attr('cx', (d) => get(d, 'x')).attr('cy', (d) => get(d, 'y'))
+
         $$gsTitle.attr('x', (d) => get(d, 'x')).attr('y', (d) => get(d, 'y'))
 
         $$gsComments
@@ -109,6 +125,18 @@ const Index = (props) => {
             (d) =>
               get(d, 'node.y') - Math.cos((d.i * Math.PI) / 6) * radius * 1.5
           )
+
+        $$gsCommentsCover
+          .attr(
+            'cx',
+            (d) =>
+              get(d, 'node.x') + Math.sin((d.i * Math.PI) / 6) * radius * 1.5
+          )
+          .attr(
+            'cy',
+            (d) =>
+              get(d, 'node.y') - Math.cos((d.i * Math.PI) / 6) * radius * 1.5
+          )
       })
 
     ___animate.current = () => {
@@ -123,6 +151,87 @@ const Index = (props) => {
         },
         (exit) => exit.remove()
       )
+
+      $$gsDefs = $$gs
+        .selectAll('defs')
+        .data((d) => {
+          return [d]
+        })
+        .join(
+          (enter) => {
+            return enter.append('defs')
+          },
+          (update) => {
+            return update
+          },
+          (exit) => exit.remove()
+        )
+
+      $$gsDefsPattern = $$gsDefs
+        .selectAll('pattern')
+        .data((d) => {
+          let _images = []
+
+          if (get(d, 'cover')) {
+            _images = [
+              ..._images,
+              {
+                id: `${d.index}-cover`,
+                href: get(d, 'cover'),
+              },
+            ]
+          }
+
+          if (get(d, 'comments')) {
+            _images = [
+              ..._images,
+              ...get(d, 'comments').map((x, i) => {
+                return {
+                  id: `${d.index}-comment-${i}`,
+                  href: get(x, 'cover'),
+                }
+              }),
+            ]
+          }
+
+          return _images
+        })
+        .join(
+          (enter) => {
+            return enter
+              .append('pattern')
+              .attr('id', (d) => get(d, 'id'))
+              .attr('width', '100%')
+              .attr('height', '100%')
+              .attr('patternUnits', 'objectBoundingBox')
+              .attr('viewBox', '0 0 1 1')
+              .attr('preserveAspectRatio', 'xMidYMid slice')
+          },
+          (update) => {
+            return update
+          },
+          (exit) => exit.remove()
+        )
+
+      $$gsDefsPatternImage = $$gsDefsPattern
+        .selectAll('image')
+        .data((d) => {
+          return [d]
+        })
+        .join(
+          (enter) => {
+            return enter
+              .append('image')
+              .attr('width', '1')
+              .attr('height', '1')
+              .attr('preserveAspectRatio', 'xMidYMid slice')
+              .attr('xlink:href', (d) => get(d, 'href'))
+          },
+          (update) => {
+            return update
+          },
+          (exit) => exit.remove()
+        )
 
       $$gsCommentsWrapper = $$gs
         .selectAll('.Bubbles__post__comments')
@@ -203,6 +312,44 @@ const Index = (props) => {
           (exit) => exit.remove()
         )
 
+      $$gsCommentsCover = $$gsCommentsWrapper
+        .selectAll('.Bubbles__post__comment-cover')
+        .data((d) => {
+          const currentNode = get(___nodes, `current[${d.index}]`)
+
+          return (get(currentNode, 'comments') || []).map((x, i) => {
+            return {
+              ...x,
+              i,
+              node: currentNode, // This has to be kept in as a separated object. An attempt to destructure it would fail. Seems to be used by `.forceSimulation`.
+            }
+          })
+        })
+        .join(
+          (enter) => {
+            return enter
+              .append('circle')
+              .classed('Bubbles__post__comment-cover', true)
+              .attr('r', 4)
+              .attr(
+                'fill',
+                (d, i) => `url(#${get(d, 'node.index')}-comment-${i})`
+              )
+              .attr('fill-opacity', 0)
+              .call((enter) => {
+                return enter
+                  .transition()
+                  .delay(1000)
+                  .duration(400)
+                  .attr('fill-opacity', 1)
+              })
+          },
+          (update) => {
+            return update
+          },
+          (exit) => exit.remove()
+        )
+
       const getRadius = (d) =>
         radius + Math.min(get(d, 'comments.length', 0), 5)
 
@@ -253,67 +400,6 @@ const Index = (props) => {
           ___animate.current()
         })
 
-      $$gsDefs = $$gs
-        .selectAll('defs')
-        .data((d) => {
-          if (get(d, 'type') == 'center') {
-            return [{}]
-          }
-
-          return []
-        })
-        .join(
-          (enter) => {
-            return enter.append('defs')
-          },
-          (update) => {
-            return update
-          },
-          (exit) => exit.remove()
-        )
-
-      $$gsDefsPattern = $$gsDefs
-        .selectAll('pattern')
-        .data((d) => {
-          return [{}]
-        })
-        .join(
-          (enter) => {
-            return enter
-              .append('pattern')
-              .attr('id', 'img0')
-              .attr('width', '100%')
-              .attr('height', '100%')
-              .attr('patternUnits', 'objectBoundingBox')
-              .attr('viewBox', '0 0 1 1')
-              .attr('preserveAspectRatio', 'xMidYMid slice')
-          },
-          (update) => {
-            return update
-          },
-          (exit) => exit.remove()
-        )
-
-      $$gsDefsPatternImage = $$gsDefsPattern
-        .selectAll('image')
-        .data((d) => {
-          return [{}]
-        })
-        .join(
-          (enter) => {
-            return enter
-              .append('image')
-              .attr('width', '1')
-              .attr('height', '1')
-              .attr('preserveAspectRatio', 'xMidYMid slice')
-              .attr('xlink:href', 'https://picsum.photos/id/237/200/300')
-          },
-          (update) => {
-            return update
-          },
-          (exit) => exit.remove()
-        )
-
       $$gsCover = $$gs
         .selectAll('.Bubbles__post__cover')
         .data((d) => {
@@ -329,7 +415,7 @@ const Index = (props) => {
               .append('circle')
               .classed('Bubbles__post__cover', true)
               .attr('r', radius - 2)
-              .attr('fill', `url(#img0)`)
+              .attr('fill', (d) => `url(#${get(d, 'index')}-cover)`)
               .attr('fill-opacity', 0)
               .call((enter) => {
                 return enter
