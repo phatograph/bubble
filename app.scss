@@ -180,7 +180,10 @@ video {
   &__a {
     display: block;
     margin-top: calc(var(--global-space) * 1);
+    padding: calc(var(--global-space) * 1);
+    background-color: #f1f1f1;
     text-align: center;
+    user-select: none;
   }
 }
 

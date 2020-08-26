@@ -6,6 +6,8 @@ import className from 'classnames'
 import axios from 'axios'
 import * as d3 from 'd3'
 
+const rand = () => ~~(Math.random() * 100)
+
 const Index = (props) => {
   const $svg = React.useRef()
   const $mainG = React.useRef()
@@ -17,7 +19,7 @@ const Index = (props) => {
       fy: 400 / 2,
       type: 'center',
       title: '阪神 0 - 0 巨人',
-      cover: 'https://picsum.photos/id/237/200/300',
+      cover: `https://picsum.photos/id/${rand()}/200/300`,
     },
   ])
 
@@ -434,15 +436,13 @@ const Index = (props) => {
         .on('click', (d) => {
           ___nodes.current = ___nodes.current.map((x) => {
             if (x.id == d.id) {
-              const _id = get(x, 'comments.length', 0) + get(d, 'index') * 10
-
               return {
                 ...x,
                 comments: [
                   ...(get(x, 'comments') || []),
                   {
-                    id: _id,
-                    cover: `https://picsum.photos/id/${_id}/200/300`,
+                    id: +new Date(),
+                    cover: `https://picsum.photos/id/${rand()}/200/300`,
                   },
                 ],
               }
@@ -592,13 +592,10 @@ const Index = (props) => {
                   x: 400,
                   y: 200,
                   title: 'Click to comment',
-                  profileImage: `https://picsum.photos/id/${get(
-                    ___nodes,
-                    'current.length'
-                  ) + 3}/200/300`,
+                  profileImage: `https://picsum.photos/id/${rand()}/200/300`,
                 },
               ],
-              20
+              40
             ),
           ]
 
