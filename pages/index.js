@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOMServer from 'react-dom/server'
 import PropTypes from 'prop-types'
-import {get} from 'lodash'
+import {get, tail, takeRight, find} from 'lodash'
 import className from 'classnames'
 import axios from 'axios'
 import * as d3 from 'd3'
@@ -12,29 +12,12 @@ const Index = (props) => {
 
   const ___nodes = React.useRef([
     {
-      id: 2,
+      id: +new Date(),
       fx: 800 / 2,
       fy: 400 / 2,
       type: 'center',
       title: '阪神 0 - 0 巨人',
       cover: 'https://picsum.photos/id/237/200/300',
-    },
-    {
-      id: 3,
-      x: 800 / 2,
-      y: 400 / 2,
-      title: 'Panes of glass',
-      cover: 'https://picsum.photos/id/236/200/300',
-      comments: [
-        {
-          id: 30,
-          cover: `https://picsum.photos/id/${3 * 10}/200/300`,
-        },
-        {
-          id: 31,
-          cover: `https://picsum.photos/id/${3 * 10 + 1}/200/300`,
-        },
-      ],
     },
   ])
 
@@ -48,20 +31,20 @@ const Index = (props) => {
 
     let $$gs
 
-    let $$gsBg
-
     let $$gsDefs
     let $$gsDefsPattern
     let $$gsDefsPatternImage
-    let $$gsCover
-
-    let $$gsTitle
 
     let $$gsCommentsWrapper
     let $$gsCommentsDefs
     let $$gsComments
     let $$gsCommentsLine
     let $$gsCommentsCover
+
+    let $$gsBg
+    let $$gsCover
+    let $$gsProfileImage
+    let $$gsTitle
 
     // START zoom
 
@@ -85,6 +68,9 @@ const Index = (props) => {
     $$svg.on('dblclick.zoom', null)
 
     // END zoom
+
+    const getRadius = (d) =>
+      radius + Math.min(get(d, 'comments.length', 0), 5) * 0.5
 
     $$gs = $$mainG.selectAll('g.post')
 
@@ -141,26 +127,55 @@ const Index = (props) => {
             (d) =>
               get(d, 'node.y') - Math.cos((d.i * Math.PI) / 6) * radius * 1.5
           )
+
+        $$gsProfileImage
+          .attr(
+            'cx',
+            (d) => get(d, 'x') + Math.sin((10.5 * Math.PI) / 6) * radius * 0.95
+          )
+          .attr(
+            'cy',
+            (d) => get(d, 'y') - Math.cos((10.5 * Math.PI) / 6) * radius * 0.95
+          )
       })
 
     ___animate.current = () => {
       ___simulation.current.nodes(___nodes.current)
 
-      $$gs = $$gs.data(___nodes.current).join(
-        (enter) => {
-          return enter.append('g').classed('Bubbles__post', true)
-        },
-        (update) => {
-          return update
-        },
-        (exit) => exit.remove()
-      )
+      $$gs = $$gs
+        .data(___nodes.current, (d) => get(d, 'id'))
+        .join(
+          (enter) => {
+            return enter.append('g').classed('Bubbles__post', true)
+          },
+          (update) => {
+            return update
+          },
+          (exit) => {
+            exit.selectAll('*:not([class="Bubbles__post__bg"])').remove()
+
+            exit
+              .select('.Bubbles__post__bg')
+              .transition()
+              .attr('r', 0)
+
+            return exit.call((exit) => {
+              return exit
+                .transition()
+                .delay(2000)
+                .remove()
+            })
+          }
+        )
 
       $$gsDefs = $$gs
         .selectAll('defs')
-        .data((d) => {
-          return [d]
-        })
+        .data(
+          (d) => {
+            return [d]
+          },
+          (d) => get(d, 'id')
+        )
         .join(
           (enter) => {
             return enter.append('defs')
@@ -173,33 +188,46 @@ const Index = (props) => {
 
       $$gsDefsPattern = $$gsDefs
         .selectAll('pattern')
-        .data((d) => {
-          let _images = []
+        .data(
+          (d) => {
+            let _images = []
 
-          if (get(d, 'cover')) {
-            _images = [
-              ..._images,
-              {
-                id: `${get(d, 'id')}-cover`,
-                href: get(d, 'cover'),
-              },
-            ]
-          }
+            if (get(d, 'cover')) {
+              _images = [
+                ..._images,
+                {
+                  id: `${get(d, 'id')}-cover`,
+                  href: get(d, 'cover'),
+                },
+              ]
+            }
 
-          if (get(d, 'comments')) {
-            _images = [
-              ..._images,
-              ...get(d, 'comments').map((x, i) => {
-                return {
-                  id: `${get(d, 'id')}-comment-${get(x, 'id')}`,
-                  href: get(x, 'cover'),
-                }
-              }),
-            ]
-          }
+            if (get(d, 'profileImage')) {
+              _images = [
+                ..._images,
+                {
+                  id: `${get(d, 'id')}-profile-image`,
+                  href: get(d, 'profileImage'),
+                },
+              ]
+            }
 
-          return _images
-        })
+            if (get(d, 'comments')) {
+              _images = [
+                ..._images,
+                ...get(d, 'comments').map((x, i) => {
+                  return {
+                    id: `${get(d, 'id')}-comment-${get(x, 'id')}`,
+                    href: get(x, 'cover'),
+                  }
+                }),
+              ]
+            }
+
+            return _images
+          },
+          (d) => get(d, 'id')
+        )
         .join(
           (enter) => {
             return enter
@@ -219,9 +247,12 @@ const Index = (props) => {
 
       $$gsDefsPatternImage = $$gsDefsPattern
         .selectAll('image')
-        .data((d) => {
-          return [d]
-        })
+        .data(
+          (d) => {
+            return [d]
+          },
+          (d) => get(d, 'id')
+        )
         .join(
           (enter) => {
             return enter
@@ -239,9 +270,12 @@ const Index = (props) => {
 
       $$gsCommentsWrapper = $$gs
         .selectAll('.Bubbles__post__comments')
-        .data((d) => {
-          return [___nodes.current[d.index]]
-        })
+        .data(
+          (d) => {
+            return [___nodes.current[d.index]]
+          },
+          (d) => get(d, 'id')
+        )
         .join(
           (enter) => {
             return enter.append('g').classed('Bubbles__post__comments', true)
@@ -254,17 +288,20 @@ const Index = (props) => {
 
       $$gsComments = $$gsCommentsWrapper
         .selectAll('.Bubbles__post__comment')
-        .data((d) => {
-          const currentNode = get(___nodes, `current[${d.index}]`)
+        .data(
+          (d) => {
+            const currentNode = get(___nodes, `current[${d.index}]`)
 
-          return (get(currentNode, 'comments') || []).map((x, i) => {
-            return {
-              ...x,
-              i,
-              node: currentNode, // This has to be kept in as a separated object. An attempt to destructure it would fail. Seems to be used by `.forceSimulation`.
-            }
-          })
-        })
+            return (get(currentNode, 'comments') || []).map((x, i) => {
+              return {
+                ...x,
+                i,
+                node: currentNode, // This has to be kept in as a separated object. An attempt to destructure it would fail. Seems to be used by `.forceSimulation`.
+              }
+            })
+          },
+          (d) => get(d, 'id')
+        )
         .join(
           (enter) => {
             return enter
@@ -286,17 +323,20 @@ const Index = (props) => {
 
       $$gsCommentsLine = $$gsCommentsWrapper
         .selectAll('.Bubbles__post__comment-line')
-        .data((d) => {
-          const currentNode = get(___nodes, `current[${d.index}]`)
+        .data(
+          (d) => {
+            const currentNode = get(___nodes, `current[${d.index}]`)
 
-          return (get(currentNode, 'comments') || []).map((x, i) => {
-            return {
-              ...x,
-              i,
-              node: currentNode, // This has to be kept in as a separated object. An attempt to destructure it would fail. Seems to be used by `.forceSimulation`.
-            }
-          })
-        })
+            return (get(currentNode, 'comments') || []).map((x, i) => {
+              return {
+                ...x,
+                i,
+                node: currentNode, // This has to be kept in as a separated object. An attempt to destructure it would fail. Seems to be used by `.forceSimulation`.
+              }
+            })
+          },
+          (d) => get(d, 'id')
+        )
         .join(
           (enter) => {
             return enter
@@ -318,17 +358,20 @@ const Index = (props) => {
 
       $$gsCommentsCover = $$gsCommentsWrapper
         .selectAll('.Bubbles__post__comment-cover')
-        .data((d) => {
-          const currentNode = get(___nodes, `current[${d.index}]`)
+        .data(
+          (d) => {
+            const currentNode = get(___nodes, `current[${d.index}]`)
 
-          return (get(currentNode, 'comments') || []).map((x, i) => {
-            return {
-              ...x,
-              i,
-              node: currentNode, // This has to be kept in as a separated object. An attempt to destructure it would fail. Seems to be used by `.forceSimulation`.
-            }
-          })
-        })
+            return (get(currentNode, 'comments') || []).map((x, i) => {
+              return {
+                ...x,
+                i,
+                node: currentNode, // This has to be kept in as a separated object. An attempt to destructure it would fail. Seems to be used by `.forceSimulation`.
+              }
+            })
+          },
+          (d) => get(d, 'id')
+        )
         .join(
           (enter) => {
             return enter
@@ -354,14 +397,14 @@ const Index = (props) => {
           (exit) => exit.remove()
         )
 
-      const getRadius = (d) =>
-        radius + Math.min(get(d, 'comments.length', 0), 5)
-
       $$gsBg = $$gs
         .selectAll('.Bubbles__post__bg')
-        .data((d) => {
-          return [___nodes.current[d.index]]
-        })
+        .data(
+          (d) => {
+            return [___nodes.current[d.index]]
+          },
+          (d) => get(d, 'id')
+        )
         .join(
           (enter) => {
             return enter
@@ -380,14 +423,18 @@ const Index = (props) => {
               })
           },
           (update) => {
-            return update.transition().attr('r', (d) => getRadius(d))
+            return update.call((update) => {
+              return update.transition().attr('r', (d) => getRadius(d))
+            })
           },
-          (exit) => exit.remove()
+          (exit) => {
+            return exit.remove()
+          }
         )
         .on('click', (d) => {
           ___nodes.current = ___nodes.current.map((x) => {
             if (x.id == d.id) {
-              const _id = get(x, 'comments.length') + get(x, 'id') * 10
+              const _id = get(x, 'comments.length', 0) + get(d, 'index') * 10
 
               return {
                 ...x,
@@ -407,15 +454,54 @@ const Index = (props) => {
           ___animate.current()
         })
 
+      $$gsProfileImage = $$gs
+        .selectAll('.Bubbles__post__profile-image')
+        .data(
+          (d) => {
+            if (get(d, 'type') == 'center') {
+              return []
+            }
+
+            return [___nodes.current[d.index]]
+          },
+          (d) => get(d, 'id')
+        )
+        .join(
+          (enter) => {
+            return enter
+              .append('circle')
+              .classed('Bubbles__post__profile-image', true)
+              .attr('fill', (d) => `url(#${get(d, 'id')}-profile-image)`)
+              .attr('r', 7)
+              .attr('fill-opacity', 0)
+              .attr('stroke-opacity', 0)
+              .call((enter) => {
+                return enter
+                  .transition()
+                  .delay(1400)
+                  .duration(400)
+                  .attr('fill-opacity', 1)
+                  .attr('stroke-opacity', 1)
+              })
+          },
+          (update) => {
+            return update
+          },
+          (exit) => exit.remove()
+        )
+
       $$gsCover = $$gs
         .selectAll('.Bubbles__post__cover')
-        .data((d) => {
-          if (get(d, 'type') == 'center') {
-            return [___nodes.current[d.index]]
-          }
+        .data(
+          (d) => {
+            if (get(d, 'type') == 'center') {
+              return [___nodes.current[d.index]]
+            }
 
-          return []
-        })
+            return []
+          },
+          (d) => get(d, 'id')
+        )
         .join(
           (enter) => {
             return enter
@@ -440,13 +526,16 @@ const Index = (props) => {
 
       $$gsTitle = $$gs
         .selectAll('.Bubbles__post__title')
-        .data((d) => {
-          if (get(d, 'title')) {
-            return [___nodes.current[d.index]]
-          }
+        .data(
+          (d) => {
+            if (get(d, 'title')) {
+              return [___nodes.current[d.index]]
+            }
 
-          return []
-        })
+            return []
+          },
+          (d) => get(d, 'id')
+        )
         .join(
           (enter) => {
             return enter
@@ -494,13 +583,23 @@ const Index = (props) => {
         className='Index__a'
         onClick={() => {
           ___nodes.current = [
-            ...___nodes.current,
-            {
-              id: get(___nodes, 'current.length') + 3,
-              x: 400,
-              y: 200,
-              title: 'Clatter plates.',
-            },
+            get(___nodes, 'current.0'),
+            ...takeRight(
+              [
+                ...tail(get(___nodes, 'current')),
+                {
+                  id: +new Date(),
+                  x: 400,
+                  y: 200,
+                  title: 'Click to comment',
+                  profileImage: `https://picsum.photos/id/${get(
+                    ___nodes,
+                    'current.length'
+                  ) + 3}/200/300`,
+                },
+              ],
+              20
+            ),
           ]
 
           ___animate.current()

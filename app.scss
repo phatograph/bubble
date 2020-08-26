@@ -198,7 +198,7 @@ video {
 
     &__title {
       fill: #000;
-      font-size: 7px;
+      font-size: 5px;
       font-weight: bold;
       dominant-baseline: central;
       text-anchor: middle;
@@ -206,6 +206,7 @@ video {
 
       &--center {
         fill: #fff;
+        font-size: 7px;
       }
     }
 
@@ -214,6 +215,10 @@ video {
     }
 
     &__comment-line {
+      stroke: #d6d6d6;
+    }
+
+    &__profile-image {
       stroke: #d6d6d6;
     }
   }
