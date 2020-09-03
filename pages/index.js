@@ -145,7 +145,7 @@ const Index = (props) => {
           )
       })
 
-    ___animate.current = ({noRestartForceSimulation = false} = {}) => {
+    ___animate.current = () => {
       ___simulation.current.nodes(___nodes.current)
 
       $$gs = $$gs
@@ -564,7 +564,7 @@ const Index = (props) => {
             return x
           })
 
-          ___animate.current({noRestartForceSimulation: true})
+          ___animate.current()
         })
 
       $$gsZoom = $$gs
@@ -615,9 +615,7 @@ const Index = (props) => {
             )
         })
 
-      if (!noRestartForceSimulation) {
-        ___simulation.current.alpha(1).restart()
-      }
+      ___simulation.current.alpha(1).restart()
     }
 
     ___animate.current()
