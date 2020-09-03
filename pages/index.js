@@ -77,7 +77,7 @@ const Index = (props) => {
     const getRadius = (d) =>
       radius + Math.min(get(d, 'comments.length', 0), 5) * 0.5
 
-    $$gs = $$mainG.selectAll('g.post')
+    $$gs = $$mainG.selectAll('.Bubbles__post')
 
     ___simulation.current = d3
       .forceSimulation(___nodes.current)
