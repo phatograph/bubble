@@ -62,8 +62,8 @@ const Index = (props) => {
         [-100, -100],
         [800 + 100, 400 + 100],
       ])
-      .on('zoom', () => {
-        $$mainG.attr('transform', d3.event.transform)
+      .on('zoom', (event) => {
+        $$mainG.attr('transform', event.transform)
       })
 
     $$svg.call(zoom)
@@ -546,7 +546,7 @@ const Index = (props) => {
           },
           (exit) => exit.remove()
         )
-        .on('click', (d) => {
+        .on('click', (event, d) => {
           ___nodes.current = ___nodes.current.map((x) => {
             if (x.id == d.id) {
               return {
@@ -599,8 +599,8 @@ const Index = (props) => {
           },
           (exit) => exit.remove()
         )
-        .on('click', (d) => {
-          d3.event.stopPropagation()
+        .on('click', (event, d) => {
+          event.stopPropagation()
 
           $$svg
             .transition()
@@ -611,7 +611,7 @@ const Index = (props) => {
                 .translate(800 / 2, 400 / 2)
                 .scale(2 * 3)
                 .translate(get(d, 'x') * -1, get(d, 'y') * -1),
-              d3.mouse($$svg.node())
+              d3.pointer(event, $$svg.node())
             )
         })
 
