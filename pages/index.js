@@ -102,39 +102,45 @@ const Index = (props) => {
           .attr(
             'cx',
             (d) =>
-              get(d, 'node.x') + Math.sin((d.i * Math.PI) / 6) * radius * 1.5
+              get(d, 'postNode.x') +
+              Math.sin((d.i * Math.PI) / 6) * radius * 1.5
           )
           .attr(
             'cy',
             (d) =>
-              get(d, 'node.y') - Math.cos((d.i * Math.PI) / 6) * radius * 1.5
+              get(d, 'postNode.y') -
+              Math.cos((d.i * Math.PI) / 6) * radius * 1.5
           )
 
         $$gsCommentsLine
-          .attr('x1', (d) => get(d, 'node.x'))
-          .attr('y1', (d) => get(d, 'node.y'))
+          .attr('x1', (d) => get(d, 'postNode.x'))
+          .attr('y1', (d) => get(d, 'postNode.y'))
 
           .attr(
             'x2',
             (d) =>
-              get(d, 'node.x') + Math.sin((d.i * Math.PI) / 6) * radius * 1.5
+              get(d, 'postNode.x') +
+              Math.sin((d.i * Math.PI) / 6) * radius * 1.5
           )
           .attr(
             'y2',
             (d) =>
-              get(d, 'node.y') - Math.cos((d.i * Math.PI) / 6) * radius * 1.5
+              get(d, 'postNode.y') -
+              Math.cos((d.i * Math.PI) / 6) * radius * 1.5
           )
 
         $$gsCommentsCover
           .attr(
             'cx',
             (d) =>
-              get(d, 'node.x') + Math.sin((d.i * Math.PI) / 6) * radius * 1.5
+              get(d, 'postNode.x') +
+              Math.sin((d.i * Math.PI) / 6) * radius * 1.5
           )
           .attr(
             'cy',
             (d) =>
-              get(d, 'node.y') - Math.cos((d.i * Math.PI) / 6) * radius * 1.5
+              get(d, 'postNode.y') -
+              Math.cos((d.i * Math.PI) / 6) * radius * 1.5
           )
 
         $$gsProfileImage
@@ -281,7 +287,7 @@ const Index = (props) => {
         .selectAll('.Bubbles__post__comments')
         .data(
           (d) => {
-            return [___nodes.current[d.index]]
+            return [d]
           },
           (d) => get(d, 'id')
         )
@@ -299,13 +305,11 @@ const Index = (props) => {
         .selectAll('.Bubbles__post__comment')
         .data(
           (d) => {
-            const currentNode = get(___nodes, `current[${d.index}]`)
-
-            return (get(currentNode, 'comments') || []).map((x, i) => {
+            return (get(d, 'comments') || []).map((x, i) => {
               return {
                 ...x,
                 i,
-                node: currentNode, // This has to be kept in as a separated object. An attempt to destructure it would fail. Seems to be used by `.forceSimulation`.
+                postNode: d, // This has to be kept in as a separated object. An attempt to destructure it would fail. Seems to be used by `.forceSimulation`.
               }
             })
           },
@@ -334,13 +338,11 @@ const Index = (props) => {
         .selectAll('.Bubbles__post__comment-line')
         .data(
           (d) => {
-            const currentNode = get(___nodes, `current[${d.index}]`)
-
-            return (get(currentNode, 'comments') || []).map((x, i) => {
+            return (get(d, 'comments') || []).map((x, i) => {
               return {
                 ...x,
                 i,
-                node: currentNode, // This has to be kept in as a separated object. An attempt to destructure it would fail. Seems to be used by `.forceSimulation`.
+                postNode: d, // This has to be kept in as a separated object. An attempt to destructure it would fail. Seems to be used by `.forceSimulation`.
               }
             })
           },
@@ -369,13 +371,11 @@ const Index = (props) => {
         .selectAll('.Bubbles__post__comment-cover')
         .data(
           (d) => {
-            const currentNode = get(___nodes, `current[${d.index}]`)
-
-            return (get(currentNode, 'comments') || []).map((x, i) => {
+            return (get(d, 'comments') || []).map((x, i) => {
               return {
                 ...x,
                 i,
-                node: currentNode, // This has to be kept in as a separated object. An attempt to destructure it would fail. Seems to be used by `.forceSimulation`.
+                postNode: d, // This has to be kept in as a separated object. An attempt to destructure it would fail. Seems to be used by `.forceSimulation`.
               }
             })
           },
@@ -389,7 +389,8 @@ const Index = (props) => {
               .attr('r', 4)
               .attr(
                 'fill',
-                (d, i) => `url(#${get(d, 'node.id')}-comment-${get(d, 'id')})`
+                (d, i) =>
+                  `url(#${get(d, 'postNode.id')}-comment-${get(d, 'id')})`
               )
               .attr('fill-opacity', 0)
               .call((enter) => {
@@ -410,7 +411,7 @@ const Index = (props) => {
         .selectAll('.Bubbles__post__bg')
         .data(
           (d) => {
-            return [___nodes.current[d.index]]
+            return [d]
           },
           (d) => get(d, 'id')
         )
@@ -449,7 +450,7 @@ const Index = (props) => {
               return []
             }
 
-            return [___nodes.current[d.index]]
+            return [d]
           },
           (d) => get(d, 'id')
         )
@@ -482,7 +483,7 @@ const Index = (props) => {
         .data(
           (d) => {
             if (get(d, 'type') == 'center') {
-              return [___nodes.current[d.index]]
+              return [d]
             }
 
             return []
@@ -516,7 +517,7 @@ const Index = (props) => {
         .data(
           (d) => {
             if (get(d, 'title')) {
-              return [___nodes.current[d.index]]
+              return [d]
             }
 
             return []
@@ -575,7 +576,7 @@ const Index = (props) => {
         .data(
           (d) => {
             if (get(d, 'type') != 'center') {
-              return [___nodes.current[d.index]]
+              return [d]
             }
 
             return []
