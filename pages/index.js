@@ -6,6 +6,9 @@ import className from 'classnames'
 import axios from 'axios'
 import * as d3 from 'd3'
 
+const WIDTH = 800
+const HEIGHT = 400
+
 const rand = () => ~~(Math.random() * 100)
 
 const Index = (props) => {
@@ -15,8 +18,8 @@ const Index = (props) => {
   const ___nodes = React.useRef([
     {
       id: +new Date(),
-      fx: 800 / 2,
-      fy: 400 / 2,
+      fx: WIDTH / 2,
+      fy: HEIGHT / 2,
       type: 'center',
       title: '阪神 0 - 0 巨人',
       cover: `https://picsum.photos/id/${rand()}/200/300`,
@@ -55,12 +58,12 @@ const Index = (props) => {
       .zoom()
       .extent([
         [0, 0],
-        [800, 400],
+        [WIDTH, HEIGHT],
       ])
       .scaleExtent([1 / (2 * 1), 2 * 4])
       .translateExtent([
         [-100, -100],
-        [800 + 100, 400 + 100],
+        [WIDTH + 100, HEIGHT + 100],
       ])
       .on('zoom', (event) => {
         $$mainG.attr('transform', event.transform)
@@ -608,7 +611,7 @@ const Index = (props) => {
             .call(
               zoom.transform,
               d3.zoomIdentity
-                .translate(800 / 2, 400 / 2)
+                .translate(WIDTH / 2, HEIGHT / 2)
                 .scale(2 * 3)
                 .translate(get(d, 'x') * -1, get(d, 'y') * -1),
               d3.pointer(event, $$svg.node())
@@ -626,7 +629,7 @@ const Index = (props) => {
       <h1 className='Index__h1'>Bubbles</h1>
 
       <div className='Index__wrapper'>
-        <svg viewBox='0 0 800 400' ref={$svg} className='Bubbles'>
+        <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} ref={$svg} className='Bubbles'>
           <g ref={$mainG} className='Bubbles__main-g' />
         </svg>
       </div>
@@ -641,8 +644,8 @@ const Index = (props) => {
                 ...tail(get(___nodes, 'current')),
                 {
                   id: +new Date(),
-                  x: 400,
-                  y: 200,
+                  x: WIDTH / 2,
+                  y: HEIGHT / 2,
                   title: 'Click to comment',
                   profileImage: `https://picsum.photos/id/${rand()}/200/300`,
                 },
